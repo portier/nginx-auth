@@ -47,7 +47,7 @@ func (p errorPage) render(w io.Writer) {
 }
 
 func main() {
-	listen := flag.String("listen", ":8081", "listen address")
+	listen := flag.String("listen", "localhost:8081", "listen address")
 	authURL := flag.String("url", "", "base URL proxied here")
 	cookieName := flag.String("cookie", "AuthSession", "cookie name")
 	secret := flag.String("secret", "", "cookie signing secret")

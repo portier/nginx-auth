@@ -8,17 +8,18 @@ for application support, or even just to protect static files!
 
 ## Installing
 
-Build nginx-auth with: (no git checkout needed)
+There are several ways to get portier-nginx-auth:
+
+- Grab a binary from the [releases page].
+
+- Docker images are available on Docker Hub as
+  [portier/nginx-auth](https://hub.docker.com/r/portier/nginx-auth).
+
+- Build from source:
 
 ```sh
 go get github.com/portier/nginx-auth
 ```
-
-The above command has no output if successful, and you'll find a binary at
-`~/go/bin/nginx-auth`.
-
-(In the future, we may create actual releases and offer ready-made binaries for
-download, but for now, this project is considered beta.)
 
 You'll also need an Nginx install with `auth_request` support. Many
 distributions enable this out-of-the-box. You can check your install by
@@ -30,6 +31,8 @@ nginx -V
 
 Then look for `--with-http_auth_request_module`. If that's not listed, you may
 have to [build Nginx from sources](https://nginx.org/en/docs/configure.html).
+
+[releases page]: https://github.com/portier/nginx-auth/releases
 
 ## Usage
 
@@ -61,18 +64,18 @@ location = @authcheck {
 }
 ```
 
-This creates a 'named location' `@authcheck` that proxies to the nginx-auth
-`/check` route. (The default port of nginx-auth is 8081, but you can change
-this with the `-listen` flag when you later start nginx-auth.)
+This creates a 'named location' `@authcheck` that proxies to the
+portier-nginx-auth `/check` route. (The default port is 8081, but you can
+change this with the `-listen` flag when you later start portier-nginx-auth.)
 
 The `auth_request @authcheck` line is the most important. For every request,
 Nginx will now first send a 'subrequest' to `@authcheck`, to see if it should
 be blocked or not, before actually serving your site. This subrequest is
-handled in nginx-auth by checking cookies.
+handled in portier-nginx-auth by checking cookies.
 
 The extra `proxy_*` settings in `@authcheck` prevent Nginx from forwarding any
-request body to nginx-auth, because it doesn't care. Only headers are used to
-perform the check.
+request body to portier-nginx-auth, because it doesn't care. Only headers are
+used to perform the check.
 
 With this in place, your application is already protected, but will just show a
 dull white error page, and offer no way to login.
@@ -80,9 +83,9 @@ dull white error page, and offer no way to login.
 ### Add login routes
 
 To add login pages to your site, we need to expose the login routes of
-nginx-auth somewhere. You'll want to pick something that doesn't conflict with
-your static files (or your real application routes). Here, we'll pick
-`/_portier`, which is a pretty safe default, but remember that this is
+portier-nginx-auth somewhere. You'll want to pick something that doesn't
+conflict with your static files (or your real application routes). Here, we'll
+pick `/_portier`, which is a pretty safe default, but remember that this is
 user-visible and you can customize this:
 
 ```nginx
@@ -95,13 +98,13 @@ location /_portier {
 Notably, we disable `auth_request` for this location, because protecting the
 login form would defeat its purpose.
 
-You can now start nginx-auth. Two flags are required: `-url` and `-secret`. Set
-the `-secret` flag to some random text; it is used to protect the cookie from
-tampering. Set the `-url` flag to match the full URL to `/_portier` (or your
-chosen path). For example:
+You can now start portier-nginx-auth. Two flags are required: `-url` and
+`-secret`. Set the `-secret` flag to some random text; it is used to protect
+the cookie from tampering. Set the `-url` flag to match the full URL to
+`/_portier` (or your chosen path). For example:
 
 ```sh
-nginx-auth \
+portier-nginx-auth \
 	-secret 'this is just an example, replace it` \
 	-url http://example.com/_portier
 ```
@@ -133,7 +136,7 @@ The idea is probably to limit access to your site, though. You can do so by
 specifying a file that contains a list of allowed emails.
 
 ```sh
-nginx-auth \
+portier-nginx-auth \
 	-secret 'this is just an example, replace it` \
 	-url http://example.com/_portier \
 	-allowlist emails.txt

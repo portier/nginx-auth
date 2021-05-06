@@ -12,11 +12,13 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 
+	"github.com/coreos/go-systemd/v22/activation"
 	"github.com/portier/portier-go"
 )
 
@@ -242,5 +244,20 @@ func main() {
 		rw.WriteHeader(303)
 	})
 
-	log.Fatal(http.ListenAndServe(*listen, nil))
+	var listener net.Listener
+	listeners, _ := activation.Listeners()
+	if len(listeners) == 1 {
+		listener = listeners[0]
+		log.Print("Listening with socket activation")
+	} else if len(listeners) > 1 {
+		log.Fatal("Socket activation did not pass exactly 1 socket")
+	} else {
+		listener, err = net.Listen("tcp", *listen)
+		if err != nil {
+			log.Fatal("net.Listen error:", err)
+		} else {
+			log.Print("Listening on ", *listen)
+		}
+	}
+	log.Fatal(http.Serve(listener, nil))
 }

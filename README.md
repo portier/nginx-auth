@@ -18,7 +18,7 @@ There are several ways to get portier-nginx-auth:
 - Build from source:
 
 ```sh
-go get github.com/portier/nginx-auth
+go install github.com/portier/nginx-auth@latest
 ```
 
 You'll also need an Nginx install with `auth_request` support. Many

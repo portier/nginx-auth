@@ -12,10 +12,6 @@ fi
 
 version="$1"
 
-flags=("-m" "")
-for pkg in ./release/portier-nginx-auth-v${version}-*.{tar.gz,zip}; do
-  flags+=("-a" "${pkg}")
-done
-
 set -x
-hub release edit "${flags[@]}" "v${version}"
+gh release upload "v${version}" \
+  ./release/portier-nginx-auth-v${version}-*.{tar.gz,zip}
